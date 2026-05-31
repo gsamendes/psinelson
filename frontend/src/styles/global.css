@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --psi-bg: #f7f3ed;
+  --psi-green: #5f7f62;
+  --psi-green-dark: #2f5d50;
+  --psi-teal: #2f6f73;
+  --psi-card: #ffffff;
+  --psi-text: #1f1f1f;
+  --psi-text-2: #6f6a64;
+  --psi-border: #e6ded4;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+body {
+  background: var(--psi-bg);
+  color: var(--psi-text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.psi-card {
+  background: var(--psi-card);
+  border: 1px solid var(--psi-border);
+  border-radius: 22px;
+  box-shadow: 0 8px 24px -16px rgba(47, 93, 80, 0.22);
+}
+
+.psi-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.psi-scroll::-webkit-scrollbar-thumb {
+  background: var(--psi-border);
+  border-radius: 8px;
+}

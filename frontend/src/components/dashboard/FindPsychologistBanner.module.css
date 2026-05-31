@@ -1,0 +1,36 @@
+.banner {
+  position: relative;
+  display: flex;
+  height: 100%;
+  padding: 22px;
+  border-radius: 22px;
+  background: linear-gradient(160deg, #ffffff 0%, #f3efe6 100%);
+  border: 1px solid var(--psi-border);
+  box-shadow: 0 8px 24px -16px rgba(47, 93, 80, 0.22);
+  overflow: hidden;
+}
+
+.content {
+  position: relative;
+  z-index: 2;
+  max-width: 78%;
+}
+
+.art {
+  position: absolute;
+  right: 8px;
+  bottom: 0;
+  width: 150px;
+  height: 160px;
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+@media (max-width: 600px) {
+  .content {
+    max-width: 100%;
+  }
+  .art {
+    display: none;
+  }
+}

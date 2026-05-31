@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(npm *)",
+      "PowerShell(Stop-Process *)",
+      "Bash(node -e \"console.log\\(require\\('./package.json'\\).dependencies['@mantine/notifications'] || 'MISSING'\\)\")",
+      "Bash(ls frontend/package-lock.json backend/package-lock.json)",
+      "Bash(ls frontend/vitest.config.* backend/vitest.config.*)"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "psiapp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PsiApp — MVP acadêmico (7º período). Scripts agregadores de teste para frontend e backend.",
+  "scripts": {
+    "test:frontend": "npm --prefix frontend run test:run",
+    "test:backend": "npm --prefix backend run test:run",
+    "test:all": "npm run test:frontend && npm run test:backend"
+  }
+}

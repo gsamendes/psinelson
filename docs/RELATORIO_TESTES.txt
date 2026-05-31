@@ -1,0 +1,196 @@
+================================================================================
+                 PSIAPP - RELATORIO DE TESTES AUTOMATIZADOS
+================================================================================
+
+Projeto : PsiApp - plataforma de conexao paciente <-> psicologo
+Contexto: MVP academico - 7o periodo de Engenharia de Software
+Data da execucao: 31/05/2026
+Responsavel pela suite: equipe PsiApp
+
+--------------------------------------------------------------------------------
+1. RESUMO EXECUTIVO
+--------------------------------------------------------------------------------
+Total de testes ........: 51
+Aprovados ..............: 51  (100%)
+Falhas .................: 0
+Arquivos de teste ......: 13  (7 frontend + 6 backend)
+
+Frontend: 23 testes aprovados (7 arquivos)
+Backend : 28 testes aprovados (6 arquivos)
+
+Resultado geral: TODOS OS TESTES PASSARAM.
+Builds (frontend e backend) compilam sem erros.
+
+--------------------------------------------------------------------------------
+2. AMBIENTE E FERRAMENTAS
+--------------------------------------------------------------------------------
+Frontend:
+  - Vitest (test runner)
+  - React Testing Library + @testing-library/user-event
+  - @testing-library/jest-dom
+  - jsdom (ambiente DOM simulado)
+
+Backend:
+  - Vitest (test runner)
+  - Supertest (testes de endpoints HTTP Express)
+  - Prisma Client mockado (testes de servico sem banco real)
+
+Observacao: os testes NAO dependem de banco de dados real (PostgreSQL/Neon).
+Os fluxos que exigiriam persistencia real foram cobertos com dados simulados
+(mocks) ou validacao de contrato/seguranca, e os demais ficam para o 8o periodo.
+
+--------------------------------------------------------------------------------
+3. COMO EXECUTAR
+--------------------------------------------------------------------------------
+Na raiz do projeto:
+  npm run test:all          (executa frontend + backend)
+  npm run test:frontend
+  npm run test:backend
+
+No frontend (/frontend):
+  npm run test:run          (execucao unica)
+  npm test                  (modo watch)
+  npm run test:coverage
+
+No backend (/backend):
+  npm run test:run
+  npm test
+
+================================================================================
+4. RESULTADO DETALHADO - FRONTEND  (23 testes / 7 arquivos)
+================================================================================
+
+[ARQUIVO] src/stores/__tests__/authStore.test.ts  (autenticacao - estado)
+  [OK] login como paciente define usuario paciente autenticado
+  [OK] login como psicologo define usuario psicologo autenticado
+  [OK] logout limpa a sessao
+  [OK] signIn (modo mock) autentica e retorna o papel
+
+[ARQUIVO] src/pages/__tests__/Login.test.tsx  (tela de login)
+  [OK] renderiza campos e seletor de perfil
+  [OK] login simulado autentica como paciente por padrao
+  [OK] selecao de perfil psicologo reflete no login
+
+[ARQUIVO] src/pages/__tests__/Register.test.tsx  (tela de cadastro)
+  [OK] renderiza campos de cadastro e seletor de perfil
+
+[ARQUIVO] src/pages/__tests__/PatientSearch.test.tsx  (busca de psicologos)
+  [OK] exibe os filtros permitidos
+  [OK] NAO expoe filtros sensiveis/discriminatorios
+
+[ARQUIVO] src/pages/__tests__/PsychologistRecord.test.tsx  (prontuario placeholder)
+  [OK] exibe aviso de area restrita e prontuario bloqueado
+  [OK] deixa explicitos os requisitos de seguranca (RBAC, tenant, vinculo, auditoria)
+  [OK] nao exibe dados clinicos reais (sem anotacoes/evolucao clinica visiveis)
+
+[ARQUIVO] src/services/__tests__/psychologistService.test.ts  (servico de psicologos)
+  [OK] lista todos os psicologos sem filtros
+  [OK] filtra por especialidade (filtro permitido)
+  [OK] filtra por modalidade online
+  [OK] retorna detalhe por id
+  [OK] lanca erro controlado para id inexistente
+
+[ARQUIVO] src/services/__tests__/appointmentService.test.ts  (fluxo de agendamento)
+  [OK] nova solicitacao nasce com status PENDENTE (nunca confirma automatico)
+  [OK] aceitar uma solicitacao muda o status para CONFIRMADA
+  [OK] recusar uma solicitacao muda o status para RECUSADA
+  [OK] cancelar uma consulta criada muda o status para CANCELADA
+  [OK] nao permite aceitar uma solicitacao ja decidida
+
+Frontend - Test Files: 7 passed (7)
+Frontend - Tests      : 23 passed (23)
+
+================================================================================
+5. RESULTADO DETALHADO - BACKEND  (28 testes / 6 arquivos)
+================================================================================
+
+[ARQUIVO] tests/health.test.ts  (health check)
+  [OK] GET /health responde 200 com status ok
+
+[ARQUIVO] tests/auth.test.ts  (validacao Zod - sem banco)
+  [OK] POST /api/auth/register com body vazio retorna 400
+  [OK] POST /api/auth/register com e-mail invalido retorna 400
+  [OK] POST /api/auth/login com body invalido retorna 400
+  [OK] GET /api/auth/me sem token retorna 401
+
+[ARQUIVO] tests/refresh.test.ts  (renovacao de token)
+  [OK] POST /api/auth/refresh sem body valido -> 400
+  [OK] POST /api/auth/refresh refresh token invalido -> 401
+  [OK] POST /api/auth/refresh refresh token valido -> 200 com novos tokens
+
+[ARQUIVO] tests/auth-service.test.ts  (integracao - Prisma mockado)
+  [OK] register: cria usuario com senha em HASH (nunca texto puro)
+  [OK] register: rejeita e-mail ja cadastrado no tenant (409)
+  [OK] login: autentica com senha correta e devolve tokens
+  [OK] login: rejeita senha incorreta (401)
+  [OK] login: rejeita usuario inexistente (401)
+  [OK] refresh: renova tokens a partir de um refresh token valido
+  [OK] refresh: rejeita refresh token invalido (401)
+
+[ARQUIVO] tests/appointments-service.test.ts  (integracao - Prisma mockado)
+  [OK] cancela uma consulta PENDENTE -> CANCELADA
+  [OK] rejeita cancelar consulta ja realizada (409)
+  [OK] rejeita consulta inexistente (404)
+
+[ARQUIVO] tests/security.test.ts  (protecao de rotas / RBAC)
+  [OK] GET  /api/psychologists           sem token -> 401
+  [OK] GET  /api/psychologists/p1         sem token -> 401
+  [OK] GET  /api/availability/p1          sem token -> 401
+  [OK] GET  /api/appointments/me          sem token -> 401
+  [OK] PATCH /api/appointments/abc/accept sem token -> 401
+  [OK] PATCH /api/appointments/abc/reject sem token -> 401
+  [OK] PATCH /api/appointments/abc/cancel sem token -> 401
+  [OK] GET  /api/notifications/me         sem token -> 401
+  [OK] GET  /api/medical-records          sem token -> 401  (prontuario protegido)
+  [OK] POST /api/appointments             sem token -> 401  (auth antes da validacao)
+
+Backend - Test Files: 6 passed (6)
+Backend - Tests      : 28 passed (28)
+
+================================================================================
+6. RASTREABILIDADE - REQUISITO x TESTE
+================================================================================
+Cadastro/login simulado .............: authStore, Login, Register
+Selecao de perfil do usuario ........: authStore, Login
+Busca de psicologos .................: psychologistService, PatientSearch
+Filtros permitidos (nao sensiveis) ..: PatientSearch (filtros presentes + ausencia
+                                        de genero/raca/religiao/orientacao)
+Solicitacao de agendamento (PENDENTE): appointmentService
+Aceite de consulta (CONFIRMADA) .....: appointmentService
+Recusa de consulta (RECUSADA) .......: appointmentService
+Cancelamento (CANCELADA) ............: appointmentService, appointments-service (back)
+Autenticacao JWT (login/refresh) ....: auth-service, auth, refresh
+Senha com hash (nunca texto puro) ...: auth-service (register)
+Protecao de rotas por token (RBAC) ..: security
+Prontuario como placeholder seguro ..: PsychologistRecord (front) + security (/medical-records 401)
+Health check da API .................: health
+
+================================================================================
+7. LIMITACOES E TESTES PENDENTES (8o PERIODO)
+================================================================================
+- Os testes nao acessam um PostgreSQL real. Os servicos de backend foram
+  validados com Prisma mockado (contrato + seguranca + regras), nao persistencia.
+- Login real ponta a ponta (frontend -> API -> banco) sera validado apos
+  provisionar o banco no Neon e ligar VITE_USE_MOCKS=false.
+- Testes de integracao com banco de teste e testes E2E (ex.: Playwright/Cypress)
+  ficam para a proxima etapa.
+- Validacao de campos obrigatorios na UI de login/cadastro ainda nao existe
+  (campos com valores padrao) - nao testada para nao inventar funcionalidade.
+- Prontuario clinico real NAO foi implementado (placeholder seguro). Nenhum teste
+  cria ou le dado clinico real.
+
+================================================================================
+8. CONCLUSAO
+================================================================================
+A suite inicial de testes do MVP cobre os fluxos criticos do 7o periodo
+(autenticacao simulada, busca com filtros permitidos, fluxo completo de
+agendamento, seguranca de rotas e prontuario como placeholder). Todos os 51
+testes foram aprovados e os projetos compilam sem erros, evidenciando uma base
+estavel e demonstravel, pronta para a integracao com backend real no 8o periodo.
+
+================================================================================
+Documentacao relacionada:
+  docs/TEST_AUTOMATION.md  - detalhes da automacao
+  docs/TEST_PLAN.md        - plano de testes manuais (23 casos)
+  docs/PROGRESS_LOG.md     - historico de evolucao do projeto
+================================================================================
